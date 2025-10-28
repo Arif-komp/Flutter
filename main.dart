@@ -92,7 +92,6 @@ class _StockCheckerScreenState extends State<StockCheckerScreen> {
   void dispose() {
     _searchController.dispose();
     _searchFocusNode.dispose();
-    // Tambahkan dispose untuk Timer
     _searchTimer?.cancel();
     super.dispose();
   }
@@ -248,8 +247,6 @@ class _StockCheckerScreenState extends State<StockCheckerScreen> {
                   width: 100,
                   height: 100,
                   margin: const EdgeInsets.only(right: 15),
-                  // NOTE: Pastikan Anda memiliki 'assets/smart.png' di proyek Anda
-                  // atau ganti dengan placeholder jika tidak.
                   child: Image.asset('assets/smart.png', fit: BoxFit.contain), 
                 ),
                 Expanded(
@@ -372,19 +369,24 @@ class _StockCheckerScreenState extends State<StockCheckerScreen> {
 
   // Helper untuk membuat Header Tabel (Agar sticky di web)
   List<Widget> _buildHeaderCells() {
+    // PERUBAHAN UKURAN KOLOM:
+    // Nama Produk: Diperlebar dari 250 menjadi 280
+    // Tgl ED: Dikecilkan dari 120 menjadi 90
     return [
-      _buildHeaderCell('Nama Produk', 250),
+      _buildHeaderCell('Nama Produk', 280),
       _buildHeaderCell('LOK.', 80),
-      _buildHeaderCell('Tgl ED', 120),
-      _buildHeaderCell('Qty', 60, isQty: true),
+      _buildHeaderCell('Tgl ED', 90),
+      _buildHeaderCell('Qty', 60),
     ];
   }
 
-  Widget _buildHeaderCell(String text, double width, {bool isQty = false}) {
+  Widget _buildHeaderCell(String text, double width) {
+    // PERUBAHAN PERATAAN TEKS HEADER:
+    // Dibuat rata tengah (Alignment.center)
     return Container(
       width: width,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-      alignment: isQty ? Alignment.center : Alignment.centerLeft,
+      alignment: Alignment.center, // <-- MODIFIKASI: Rata Tengah
       decoration: BoxDecoration(
         border: Border.all(color: const Color(0xFF0056b3), width: 0.5)
       ),
@@ -397,13 +399,16 @@ class _StockCheckerScreenState extends State<StockCheckerScreen> {
 
   // Helper untuk membuat Baris Data
   Widget _buildDataRow(StockItem item) {
+    // PERUBAHAN UKURAN KOLOM:
+    // Nama Produk: Diperlebar dari 250 menjadi 280
+    // Tgl ED: Dikecilkan dari 120 menjadi 90
     return Container(
       color: _filteredData.indexOf(item) % 2 == 0 ? Colors.white : const Color(0xFFf3f5f8),
       child: Row(
         children: [
-          _buildDataCell(item.produk, 250, fontWeight: FontWeight.w500),
-          _buildDataCell(item.lokasi, 80),
-          _buildDataCell(item.tglEd, 120),
+          _buildDataCell(item.produk, 280, fontWeight: FontWeight.w500),
+          _buildDataCell(item.lokasi, 80, align: Alignment.center),
+          _buildDataCell(item.tglEd, 90, align: Alignment.center),
           _buildDataCell(item.qty, 60, align: Alignment.center, fontWeight: FontWeight.w700),
         ],
       ),
@@ -439,18 +444,11 @@ class ScannerOverlay extends StatefulWidget {
 }
 
 class _ScannerOverlayState extends State<ScannerOverlay> {
-  // Gunakan controller lokal agar dapat di-dispose dengan benar
+  // PENGATURAN UNTUK SCANNER SENSITIF: 
+  // detectionSpeed: DetectionSpeed.normal menganalisis lebih banyak frame per detik
   final MobileScannerController _scannerController = MobileScannerController(
-    // 1. NON-AKTIFKAN THROTTLING: detectionSpeed.noDuplicates sudah baik, tapi kita bisa coba .normal
-    // Untuk sensitivitas maksimal, kita ingin setiap frame diperiksa.
-    detectionSpeed: DetectionSpeed.normal, 
-    // 2. TINGKATKAN ANALISIS KUALITAS GAMBAR:
-    returnImage: false, // Mengambil gambar frame dapat memperlambat.
-    // 3. NON-AKTIFKAN PEMBATASAN AREA PEMINDAIAN:
-    // scanWindow: Rect.fromLTWH(0, 0, 1, 1), // Optional, jika ingin fokus ke seluruh layar
-    // 4. AKTIFKAN FLASH/LAMPU: Membantu dalam kondisi buram/gelap
-    torchEnabled: false, 
-    // 5. AUTO-FOCUS: Biasanya sudah aktif, tetapi pastikan setting kamera di perangkat mendukung.
+    detectionSpeed: DetectionSpeed.normal, // <-- MODIFIKASI: Deteksi lebih sering
+    returnImage: false,
     facing: CameraFacing.back,
   );
 
@@ -489,22 +487,17 @@ class _ScannerOverlayState extends State<ScannerOverlay> {
       body: Stack(
         children: [
           MobileScanner(
-            // Menggunakan controller yang sudah dikonfigurasi di atas
             controller: _scannerController, 
-            // Mengubah detectionSpeed ke .normal atau membiarkannya default dapat meningkatkan frekuensi deteksi.
-            // Kita juga akan menambahkan logika untuk mencegah pemrosesan berulang
             onDetect: (capture) {
-              if (_isProcessing) return; // Mencegah pemrosesan ganda
+              if (_isProcessing) return; 
 
               final List<Barcode> barcodes = capture.barcodes;
               if (barcodes.isNotEmpty) {
                 final String scannedCode = barcodes.first.rawValue ?? '';
                 
                 if (scannedCode.isNotEmpty) {
-                  // Mengunci pemrosesan
                   setState(() => _isProcessing = true);
                   
-                  // Menghentikan scanner dan mengembalikan hasil
                   _scannerController.stop(); 
                   Navigator.pop(context, scannedCode);
                 }
@@ -514,8 +507,9 @@ class _ScannerOverlayState extends State<ScannerOverlay> {
           // Tambahkan overlay visual (seperti kotak scan)
           Center(
             child: Container(
+              // MODIFIKASI UKURAN KOTAK SCAN: diperbesar
               width: 300,
-              height: 80, // Rasio aspek lebar untuk barcode
+              height: 150, // <-- MODIFIKASI: Ditingkatkan dari 80 menjadi 150
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.redAccent, width: 3),
                 borderRadius: BorderRadius.circular(5),
