@@ -1,7 +1,40 @@
+name: cek_stok_smart_flutter
+description: Aplikasi Cek Stok menggunakan Flutter dan Google Sheets.
+
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.1.0 # Untuk mengambil data dari Google Sheet
-  mobile_scanner: ^4.0.0 # Contoh library scanner
   
-# ... bagian lain dari file pubspec.yaml Anda
+  # Untuk mengambil data dari Google Sheet via HTTP
+  http: ^1.1.0 
+  # Untuk fungsionalitas scan kamera (Kompatibel untuk Web, Android, iOS)
+  mobile_scanner: ^4.0.0 
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  # Pastikan Anda meletakkan logo 'smart.png' di folder 'assets/'
+  assets:
+    - assets/smart.png 
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
