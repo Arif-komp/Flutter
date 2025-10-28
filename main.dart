@@ -373,9 +373,9 @@ class _StockCheckerScreenState extends State<StockCheckerScreen> {
     // Nama Produk: Diperlebar dari 250 menjadi 280
     // Tgl ED: Dikecilkan dari 120 menjadi 90
     return [
-      _buildHeaderCell('Nama Produk', 350),
+      _buildHeaderCell('Nama Produk', 380),
       _buildHeaderCell('LOK.', 80),
-      _buildHeaderCell('Tgl ED', 40),
+      _buildHeaderCell('Tgl ED', 55),
       _buildHeaderCell('Qty', 60),
     ];
   }
@@ -406,9 +406,9 @@ class _StockCheckerScreenState extends State<StockCheckerScreen> {
       color: _filteredData.indexOf(item) % 2 == 0 ? Colors.white : const Color(0xFFf3f5f8),
       child: Row(
         children: [
-          _buildDataCell(item.produk, 280, fontWeight: FontWeight.w500),
+          _buildDataCell(item.produk, 350, fontWeight: FontWeight.w500),
           _buildDataCell(item.lokasi, 80, align: Alignment.center),
-          _buildDataCell(item.tglEd, 90, align: Alignment.center),
+          _buildDataCell(item.tglEd, 50, align: Alignment.center),
           _buildDataCell(item.qty, 60, align: Alignment.center, fontWeight: FontWeight.w700),
         ],
       ),
@@ -509,7 +509,7 @@ class _ScannerOverlayState extends State<ScannerOverlay> {
             child: Container(
               // MODIFIKASI UKURAN KOTAK SCAN: diperbesar
               width: 300,
-              height: 150, // <-- MODIFIKASI: Ditingkatkan dari 80 menjadi 150
+              height: 3000, // <-- MODIFIKASI: Ditingkatkan dari 80 menjadi 150
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.redAccent, width: 3),
                 borderRadius: BorderRadius.circular(5),
