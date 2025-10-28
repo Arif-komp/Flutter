@@ -373,9 +373,9 @@ class _StockCheckerScreenState extends State<StockCheckerScreen> {
     // Nama Produk: Diperlebar dari 250 menjadi 280
     // Tgl ED: Dikecilkan dari 120 menjadi 90
     return [
-      _buildHeaderCell('Nama Produk', 280),
+      _buildHeaderCell('Nama Produk', 350),
       _buildHeaderCell('LOK.', 80),
-      _buildHeaderCell('Tgl ED', 90),
+      _buildHeaderCell('Tgl ED', 40),
       _buildHeaderCell('Qty', 60),
     ];
   }
