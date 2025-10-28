@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEK STOK SMART SWALAYAN - Modern</title>
+    
+    <script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ================================================= */
+        /* 1. Pengaturan Dasar & Tipografi */
+        /* ================================================= */
+        :root {
+            --primary-color: #007bff; /* Biru Utama */
+            --secondary-color: #6c757d; /* Abu-abu Sekunder */
+            --background-color: #f8f9fa; /* Latar belakang sangat terang */
+            --card-background: #ffffff; /* Latar belakang kartu putih */
+            --text-color: #212529;
+            --font-main: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 10px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-size: 14px; 
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px; 
+            margin: 20px auto;
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md); 
+        }
+
+        /* ================================================= */
+        /* 2. Header & Judul */
+        /* ================================================= */
+        .header-row {
+            display: flex;
+            flex-direction: row; 
+            align-items: center; 
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .logo-box {
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px; 
+        }
+        .logo-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .header-title-box {
+            text-align: left; 
+            margin-bottom: 0;
+            padding-bottom: 0;
+            flex-grow: 1; 
+        }
+
+        .header-title-box h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        /* Label Blok */
+        .design-label {
+            padding: 5px 0 3px 0;
+            font-size: 13px; 
+            font-weight: 600;
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+
+        /* ================================================= */
+        /* 3. Search & Scan Input */
+        /* ================================================= */
+        .search-container {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+            border: 2px solid #ced4da; 
+            border-radius: 8px; 
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .search-container:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        #searchInput {
+            flex-grow: 1;
+            padding: 12px 15px; 
+            border: none;
+            font-size: 16px; 
+            outline: none;
+            background-color: #f8f9fa;
+        }
+
+        #scanButton {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 18px; 
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        #scanButton:hover {
+            background-color: #0056b3;
+        }
+        #scanButton:active {
+            transform: scale(0.98);
+        }
+        
+        #scanButton svg {
+            stroke-width: 2.5; 
+        }
+
+        /* ================================================= */
+        /* 4. Tabel Data & Responsif */
+        /* ================================================= */
+        .table-container {
+            max-height: 60vh; 
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-top: 15px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        #stockTable {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        #stockTable thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            box-shadow: 0 2px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Header Tabel (th) */
+        #stockTable th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            font-size: 12px; 
+            padding: 10px 8px;
+            text-align: left;
+            border: 1px solid #0056b3;
+        }
+        
+        /* Data Tabel (td) */
+        #stockTable td {
+            padding: 10px 8px; 
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+            word-wrap: break-word;
+            font-size: 14px; 
+            line-height: 1.4;
+        }
+
+        /* Hover dan Stripe Row */
+        #stockTable tbody tr:nth-of-type(even) {
+            background-color: #f3f5f8;
+        }
+
+        #stockTable tbody tr:hover {
+            background-color: #e2f0ff;
+            cursor: default;
+        }
+        
+        /* Lebar Kolom Dioptimalkan */
+        #stockTable th:nth-child(1) { width: 40%; } /* Nama Produk */
+        #stockTable th:nth-child(2) { width: 15%; } /* Lokasi */
+        #stockTable th:nth-child(3) { width: 35%; } /* Tgl ED */
+        #stockTable th:nth-child(4) { width: 10%; } /* Qty */
+        
+        /* Qty Rata Kanan dan Ditebalkan */
+        #stockTable th:nth-child(4),
+        #stockTable td:nth-child(4) {
+            text-align: center;
+            font-weight: 700;
+            color: var(--text-color); 
+        }
+        
+        #stockTable td:nth-child(1) {
+            font-weight: 500; 
+            color: var(--text-color);
+        }
+
+        /* Pesan Loading & Error */
+        #message {
+            text-align: center;
+            padding: 15px;
+            font-style: italic;
+            color: var(--secondary-color);
+            font-weight: 400;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 4px;
+            margin-top: 15px;
+            display: block; 
+        }
+        
+        /* ================================================= */
+        /* 5. Responsif & Scanner Modal */
+        /* ================================================= */
+        @media (max-width: 600px) {
+            .container {
+                margin: 0;
+                padding: 15px;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            body {
+                padding: 0;
+                font-size: 13px;
+            }
+            .header-row {
+                margin-bottom: 15px;
+            }
+            .header-title-box h1 {
+                font-size: 18px;
+            }
+            .logo-box {
+                width: 90px;
+                height: 90px; 
+            }
+            
+            #stockTable th:nth-child(1) { width: 35%; } 
+            #stockTable th:nth-child(2) { width: 15%; } 
+            #stockTable th:nth-child(3) { width: 40%; } 
+            #stockTable th:nth-child(4) { width: 10%; } 
+            
+            #searchInput {
+                font-size: 14px;
+                padding: 10px;
+            }
+            #scanButton {
+                padding: 10px 15px;
+            }
+
+            .table-container {
+                max-height: 65vh;
+            }
+
+            #stockTable td {
+                font-size: 13px; 
+            }
+        }
+        
+        /* Gaya Modal Scanner */
+        .scanner-modal {
+            font-family: var(--font-main);
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none; 
+        }
+        .modal-content {
+            margin: 10% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .modal-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        #scanner-container {
+            width: 100%;
+            max-width: 100%;
+            aspect-ratio: 4 / 1; 
+            margin: auto;
+            overflow: hidden;
+            border: 3px solid white;
+        }
+        #video-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="header-row">
+            <div class="logo-box">
+                <img src="smart.png" alt="Logo Smart Swalayan">
+            </div>
+            <div class="header-title-box">
+                <h1>CEK STOK SMART</h1>
+            </div>
+        </div>
+        
+        <div class="design-label">
+            SCAN / INPUT BARCODE
+            
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Input Barcode atau Nama Produk...">
+                <button id="scanButton" title="Scan Barcode menggunakan Kamera">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <div class="design-label" style="font-size: 11px;">
+            DETAIL ITEM
+            
+            <div class="table-container">
+                <table id="stockTable">
+                    <thead>
+                        <tr>
+                            <th>Nama Produk</th>
+                            <th>LOK.</th> <th>Tgl ED</th>
+                            <th>Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                                </tbody>
+                </table>
+            </div>
+            
+            <div id="message">Memuat data dari Google Sheet...</div>
+        </div>
+    </div>
+
+    <div id="scannerModal" class="scanner-modal">
+        <span class="modal-close" id="closeModal">&times;</span>
+        <div class="modal-content">
+            <p style="color: white; text-align: center; margin-bottom: 5px; font-weight: 500;">Arahkan kamera ke Barcode</p>
+            <div id="scanner-container">
+                <video id="video-feed" style="display: none;"></video>
+            </div>
+            <p id="scanner-message" style="color: yellow; text-align: center; margin-top: 10px;">Tekan tombol kamera untuk mulai</p>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // =================================================
+            // --- KONFIGURASI PENTING ---
+            // GANTI DENGAN ID GOOGLE SHEET ANDA SENDIRI
+            // Pastikan sheet sudah di-publish ke web: File -> Share -> Publish to web -> Link -> Document -> Sheet1 (atau nama sheet Anda) -> Comma Separated Values (.csv)
+            // Kemudian ambil ID sheet-nya
+            // =================================================
+            const SHEET_ID = '1qA2INHulKAM3UXnelYqw1eg_fDRHOXzeM_R2_wMqXj4';
+            const SHEET_NAME = 'sheet1'; 
+            const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+
+            // --- ELEMEN DOM UTAMA ---
+            const searchInput = document.getElementById('searchInput');
+            const tableBody = document.getElementById('tableBody');
+            const messageEl = document.getElementById('message');
+            const scanButton = document.getElementById('scanButton');
+            
+            // --- ELEMEN DOM SCANNER ZXING ---
+            const scannerModal = document.getElementById('scannerModal');
+            const closeModalBtn = document.getElementById('closeModal');
+            const videoFeed = document.getElementById('video-feed');
+            const scannerMessage = document.getElementById('scanner-message');
+
+            let allData = [];
+            let scanTimer;
+            
+            // --- VARIABEL ZXING ---
+            let isScanning = false;
+            
+            const hints = new Map();
+            hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+                ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.EAN_13, 
+                ZXing.BarcodeFormat.EAN_8, ZXing.BarcodeFormat.CODE_39, ZXing.BarcodeFormat.ITF, 
+                ZXing.BarcodeFormat.AZTEC, ZXing.BarcodeFormat.DATA_MATRIX, ZXing.BarcodeFormat.UPC_A, 
+                ZXing.BarcodeFormat.UPC_E, ZXing.BarcodeFormat.CODABAR, ZXing.BarcodeFormat.CODE_93 
+            ]);
+            
+            const controls = {
+                video: {
+                    width: { ideal: 1280 }, 
+                    height: { ideal: 720 }, 
+                    facingMode: 'environment' // Mengaktifkan kamera belakang
+                }
+            };
+
+            const codeReader = new ZXing.BrowserMultiFormatReader(hints);
+
+            // =================================================
+            // LOGIKA SCANNER KAMERA
+            // =================================================
+
+            const stopScanner = () => {
+                if (!isScanning) return;
+                isScanning = false;
+                codeReader.reset(); // Menghentikan aliran kamera
+                scannerModal.style.display = 'none'; 
+                videoFeed.style.display = 'none'; 
+                scannerMessage.textContent = 'Tekan tombol kamera untuk mulai';
+                // Reset tombol scan ke ikon kamera
+                scanButton.style.backgroundColor = 'var(--primary-color)';
+                scanButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>`;
+                searchInput.focus(); 
+            };
+
+            const startScanner = () => {
+                isScanning = true;
+                scannerModal.style.display = 'block'; 
+                videoFeed.style.display = 'block'; 
+                scannerMessage.textContent = 'Mengaktifkan kamera... Arahkan ke barcode.';
+                // Ubah tombol scan ke ikon stop (merah)
+                scanButton.style.backgroundColor = '#dc3545'; 
+                scanButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line></svg>`;
+
+                codeReader.decodeFromVideoDevice(
+                    undefined, 
+                    'video-feed', 
+                    (result, error) => {
+                        if (result) {
+                            const scannedCode = result.text;
+                            searchInput.value = scannedCode; // Masukkan ke input
+                            stopScanner(); // Otomatis stop setelah scan sukses
+                            
+                            // Tampilkan pesan sukses dan trigger pencarian
+                            messageEl.textContent = `✅ Barcode ${scannedCode} berhasil di-scan! Mencari data...`;
+                            messageEl.style.backgroundColor = '#d4edda';
+                            messageEl.style.color = '#155724';
+                            messageEl.style.display = 'block';
+                            handleSearch(); 
+                        } else if (error && !(error instanceof ZXing.NotFoundException)) {
+                            console.error('Scan Error:', error);
+                            scannerMessage.textContent = 'Scan Error: Barcode tidak terbaca dengan jelas.';
+                        }
+                    },
+                    controls 
+                ).catch(err => {
+                    console.error('Kamera gagal diakses:', err);
+                    stopScanner();
+                    messageEl.textContent = '❌ Gagal akses kamera. Periksa izin browser dan pastikan Anda menggunakan alamat HTTPS/localhost.';
+                    messageEl.style.backgroundColor = '#f8d7da';
+                    messageEl.style.color = '#721c24';
+                    messageEl.style.display = 'block';
+                });
+            };
+
+            scanButton.addEventListener('click', () => {
+                if (isScanning) {
+                    stopScanner();
+                } else {
+                    startScanner();
+                }
+            });
+
+            closeModalBtn.addEventListener('click', stopScanner);
+            window.addEventListener('keydown', (e) => {
+                if (e.key === "Escape" && scannerModal.style.display === 'block') {
+                    stopScanner();
+                }
+            });
+
+            // =================================================
+            // FUNGSI PENGAMBILAN DATA, PENCARIAN & RENDERING
+            // =================================================
+            async function fetchData() {
+                try {
+                    const response = await fetch(URL);
+                    if (!response.ok) {
+                        throw new Error(`Gagal mengambil data (HTTP Status: ${response.status})`);
+                    }
+                    
+                    let text = await response.text();
+                    const jsonString = text.substring(text.indexOf('(') + 1, text.lastIndexOf(')'));
+                    const data = JSON.parse(jsonString);
+
+                    if (!data.table || !data.table.rows) {
+                        throw new Error('Format data tidak valid.');
+                    }
+
+                    allData = data.table.rows
+                        .map(row => {
+                            const getCellValue = (index, isFormatted = false) => {
+                                if (row.c[index]) {
+                                    return isFormatted && row.c[index].f ? row.c[index].f : row.c[index].v;
+                                }
+                                return '';
+                            };
+
+                            const barcode = getCellValue(0);
+                            const produk = getCellValue(1);
+                            const lokasi = getCellValue(2);
+                            const tglEd = getCellValue(3, true); 
+                            const qty = getCellValue(4, true); 
+                            
+                            if (!barcode && !produk) return null; 
+
+                            return {
+                                barcode: barcode ? barcode.toString() : '',
+                                produk: produk ? produk.toString() : '',
+                                lokasi: lokasi ? lokasi.toString() : 'N/A',
+                                tglEd: tglEd ? tglEd.toString() : 'N/A',
+                                qty: qty ? qty.toString() : '0' 
+                            };
+                        })
+                        .filter(row => row !== null)
+                        .filter(row => row.barcode.toLowerCase() !== 'barcode' || row.produk.toLowerCase() !== 'nama produk');
+
+                    messageEl.textContent = 'Masukkan Barcode atau Nama Produk untuk mencari item.';
+                    messageEl.style.backgroundColor = '#f8f9fa';
+                    messageEl.style.color = 'var(--secondary-color)';
+                    messageEl.style.border = '1px solid #ddd';
+                    renderTable([]); 
+
+                } catch (error) {
+                    console.error('Error saat mengambil data:', error);
+                    messageEl.textContent = `❌ Error: ${error.message}. Cek Google Sheet ID dan status publikasi.`;
+                    messageEl.style.backgroundColor = '#f8d7da';
+                    messageEl.style.color = '#721c24';
+                }
+            }
+
+            function renderTable(data) {
+                tableBody.innerHTML = ''; 
+                
+                if (data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--secondary-color); font-style: italic;">Tidak ada data item ditemukan.</td></tr>';
+                    if (messageEl.style.backgroundColor !== 'rgb(248, 215, 218)') {
+                        messageEl.style.display = 'block'; 
+                    }
+                    return;
+                }
+
+                const rowsHtml = data.map(row => {
+                    return `
+                        <tr>
+                            <td>${row.produk}</td>
+                            <td>${row.lokasi}</td>
+                            <td>${row.tglEd}</td>
+                            <td>${row.qty}</td>
+                        </tr>
+                    `;
+                }).join(''); 
+                
+                tableBody.innerHTML = rowsHtml;
+                messageEl.style.display = 'none'; 
+            }
+
+            function handleSearch() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                
+                if (searchTerm.length < 3) { 
+                    messageEl.style.display = 'block';
+                    messageEl.textContent = 'Masukkan minimal 3 karakter (Barcode/Nama Produk), atau gunakan Scan Kamera.';
+                    messageEl.style.backgroundColor = '#f8f9fa';
+                    messageEl.style.color = 'var(--secondary-color)';
+                    messageEl.style.border = '1px solid #ddd';
+                    renderTable([]);
+                    return;
+                }
+
+                const keywords = searchTerm.split(/\s+/).filter(k => k.length > 0);
+
+                const filteredData = allData.filter(row => {
+                    const searchString = (row.barcode + " " + row.produk + " " + row.lokasi).toLowerCase();
+                    return keywords.every(keyword => searchString.includes(keyword));
+                });
+                
+                renderTable(filteredData); 
+
+                if (filteredData.length === 0) {
+                    messageEl.style.display = 'block';
+                    messageEl.textContent = `⚠️ Tidak ada data ditemukan untuk "${searchTerm}". Coba kata kunci lain.`;
+                    messageEl.style.backgroundColor = '#fff3cd';
+                    messageEl.style.color = '#856404';
+                }
+            }
+
+            // =================================================
+            // LOGIKA SCANNER FISIK/KEYBOARD (DELAY PENCARIAN)
+            // =================================================
+            function handleScannerInput() {
+                clearTimeout(scanTimer);
+                scanTimer = setTimeout(() => {
+                    handleSearch(); 
+                }, 50); // Delay kecil untuk memastikan input scanner fisik sudah selesai
+            }
+
+            function handleScannerKey(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); 
+                    clearTimeout(scanTimer); 
+                    handleSearch();
+                }
+            }
+            
+            // --- Event Listeners ---
+            searchInput.addEventListener('input', handleScannerInput); 
+            searchInput.addEventListener('keydown', handleScannerKey); 
+            
+            fetchData();
+        });
+    </script>
+
+</body>
+</html>
