@@ -508,8 +508,8 @@ class _ScannerOverlayState extends State<ScannerOverlay> {
           Center(
             child: Container(
               // MODIFIKASI UKURAN KOTAK SCAN: diperbesar
-              width: 300,
-              height: 3000, // <-- MODIFIKASI: Ditingkatkan dari 80 menjadi 150
+              width: 100,
+              height: 200, // <-- MODIFIKASI: Ditingkatkan dari 80 menjadi 150
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.redAccent, width: 3),
                 borderRadius: BorderRadius.circular(5),
