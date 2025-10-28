@@ -177,7 +177,8 @@
             font-weight: 600;
             font-size: 12px; 
             padding: 10px 8px;
-            text-align: left;
+            /* MODIFIKASI: Rata Tengah */
+            text-align: center; 
             border: 1px solid #0056b3;
         }
         
@@ -202,9 +203,11 @@
         }
         
         /* Lebar Kolom Dioptimalkan */
-        #stockTable th:nth-child(1) { width: 80%; } /* Nama Produk */
+        /* MODIFIKASI: Nama Produk diperlebar (dari 80% menjadi 110%) */
+        #stockTable th:nth-child(1) { width: 110%; text-align: left;} 
         #stockTable th:nth-child(2) { width: 15%; } /* Lokasi */
-        #stockTable th:nth-child(3) { width: 20%; } /* Tgl ED */
+        /* MODIFIKASI: Tgl ED diperkecil (dari 20% menjadi 15%) */
+        #stockTable th:nth-child(3) { width: 15%; } 
         #stockTable th:nth-child(4) { width: 10%; } /* Qty */
         
         /* Qty Rata Kanan dan Ditebalkan */
@@ -218,8 +221,14 @@
         #stockTable td:nth-child(1) {
             font-weight: 500; 
             color: var(--text-color);
+            text-align: left;
         }
 
+        /* Tgl ED Rata Tengah */
+        #stockTable td:nth-child(3) {
+            text-align: center;
+        }
+        
         /* Pesan Loading & Error */
         #message {
             text-align: center;
@@ -259,9 +268,11 @@
                 height: 90px; 
             }
             
-            #stockTable th:nth-child(1) { width: 35%; } 
+            /* MODIFIKASI: Nama Produk diperlebar (dari 35% menjadi 45%) */
+            #stockTable th:nth-child(1) { width: 45%; } 
             #stockTable th:nth-child(2) { width: 15%; } 
-            #stockTable th:nth-child(3) { width: 40%; } 
+            /* MODIFIKASI: Tgl ED diperkecil (dari 40% menjadi 30%) */
+            #stockTable th:nth-child(3) { width: 30%; } 
             #stockTable th:nth-child(4) { width: 10%; } 
             
             #searchInput {
@@ -312,7 +323,8 @@
         #scanner-container {
             width: 100%;
             max-width: 100%;
-            aspect-ratio: 4 / 1; 
+            /* MODIFIKASI: Ukuran kotak scan diperbesar dari 4/1 menjadi 3/2 */
+            aspect-ratio: 3 / 2; 
             margin: auto;
             overflow: hidden;
             border: 3px solid white;
@@ -352,14 +364,15 @@
         </div>
         
         <div class="design-label" style="font-size: 11px;">
-           
+            DETAIL ITEM
             
             <div class="table-container">
                 <table id="stockTable">
                     <thead>
                         <tr>
                             <th>Nama Produk</th>
-                            <th>LOK.</th> <th>Tgl ED</th>
+                            <th>LOK.</th> 
+                            <th>Tgl ED</th>
                             <th>Qty</th>
                         </tr>
                     </thead>
@@ -388,8 +401,6 @@
             // =================================================
             // --- KONFIGURASI PENTING ---
             // GANTI DENGAN ID GOOGLE SHEET ANDA SENDIRI
-            // Pastikan sheet sudah di-publish ke web: File -> Share -> Publish to web -> Link -> Document -> Sheet1 (atau nama sheet Anda) -> Comma Separated Values (.csv)
-            // Kemudian ambil ID sheet-nya
             // =================================================
             const SHEET_ID = '1qA2INHulKAM3UXnelYqw1eg_fDRHOXzeM_R2_wMqXj4';
             const SHEET_NAME = 'sheet1'; 
@@ -414,6 +425,7 @@
             let isScanning = false;
             
             const hints = new Map();
+            // Semakin banyak format yang diaktifkan, semakin banyak kemungkinan deteksi.
             hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
                 ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.EAN_13, 
                 ZXing.BarcodeFormat.EAN_8, ZXing.BarcodeFormat.CODE_39, ZXing.BarcodeFormat.ITF, 
@@ -423,12 +435,14 @@
             
             const controls = {
                 video: {
-                    width: { ideal: 1280 }, 
-                    height: { ideal: 1220 }, 
+                    // MODIFIKASI: Ideal width/height lebih besar untuk resolusi yang lebih baik
+                    width: { ideal: 1920 }, 
+                    height: { ideal: 1080 }, 
                     facingMode: 'environment' // Mengaktifkan kamera belakang
                 }
             };
 
+            // Reader ini secara default sudah menganalisis frame secara berkelanjutan.
             const codeReader = new ZXing.BrowserMultiFormatReader(hints);
 
             // =================================================
