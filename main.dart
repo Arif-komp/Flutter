@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async'; // Diperlukan untuk Timer
 import 'package:mobile_scanner/mobile_scanner.dart'; // Digunakan untuk scan kamera
 
 void main() {
@@ -91,6 +92,8 @@ class _StockCheckerScreenState extends State<StockCheckerScreen> {
   void dispose() {
     _searchController.dispose();
     _searchFocusNode.dispose();
+    // Tambahkan dispose untuk Timer
+    _searchTimer?.cancel();
     super.dispose();
   }
 
@@ -245,7 +248,9 @@ class _StockCheckerScreenState extends State<StockCheckerScreen> {
                   width: 100,
                   height: 100,
                   margin: const EdgeInsets.only(right: 15),
-                  child: Image.asset('assets/smart.png', fit: BoxFit.contain),
+                  // NOTE: Pastikan Anda memiliki 'assets/smart.png' di proyek Anda
+                  // atau ganti dengan placeholder jika tidak.
+                  child: Image.asset('assets/smart.png', fit: BoxFit.contain), 
                 ),
                 Expanded(
                   child: Column(
@@ -426,8 +431,36 @@ class _StockCheckerScreenState extends State<StockCheckerScreen> {
 // ==========================================================
 // LAYAR SCANNER (Menggunakan mobile_scanner)
 // ==========================================================
-class ScannerOverlay extends StatelessWidget {
+class ScannerOverlay extends StatefulWidget {
   const ScannerOverlay({super.key});
+
+  @override
+  State<ScannerOverlay> createState() => _ScannerOverlayState();
+}
+
+class _ScannerOverlayState extends State<ScannerOverlay> {
+  // Gunakan controller lokal agar dapat di-dispose dengan benar
+  final MobileScannerController _scannerController = MobileScannerController(
+    // 1. NON-AKTIFKAN THROTTLING: detectionSpeed.noDuplicates sudah baik, tapi kita bisa coba .normal
+    // Untuk sensitivitas maksimal, kita ingin setiap frame diperiksa.
+    detectionSpeed: DetectionSpeed.normal, 
+    // 2. TINGKATKAN ANALISIS KUALITAS GAMBAR:
+    returnImage: false, // Mengambil gambar frame dapat memperlambat.
+    // 3. NON-AKTIFKAN PEMBATASAN AREA PEMINDAIAN:
+    // scanWindow: Rect.fromLTWH(0, 0, 1, 1), // Optional, jika ingin fokus ke seluruh layar
+    // 4. AKTIFKAN FLASH/LAMPU: Membantu dalam kondisi buram/gelap
+    torchEnabled: false, 
+    // 5. AUTO-FOCUS: Biasanya sudah aktif, tetapi pastikan setting kamera di perangkat mendukung.
+    facing: CameraFacing.back,
+  );
+
+  bool _isProcessing = false;
+
+  @override
+  void dispose() {
+    _scannerController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -436,20 +469,43 @@ class ScannerOverlay extends StatelessWidget {
         title: const Text('Scan Barcode', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: ValueListenableBuilder(
+              valueListenable: _scannerController.torchState,
+              builder: (context, state, child) {
+                switch (state as TorchState) {
+                  case TorchState.off:
+                    return const Icon(Icons.flash_off, color: Colors.white);
+                  case TorchState.on:
+                    return const Icon(Icons.flash_on, color: Colors.yellow);
+                }
+              },
+            ),
+            onPressed: () => _scannerController.toggleTorch(),
+          ),
+        ],
       ),
       body: Stack(
         children: [
           MobileScanner(
-            controller: MobileScannerController(
-              detectionSpeed: DetectionSpeed.noDuplicates,
-              facing: CameraFacing.back,
-            ),
+            // Menggunakan controller yang sudah dikonfigurasi di atas
+            controller: _scannerController, 
+            // Mengubah detectionSpeed ke .normal atau membiarkannya default dapat meningkatkan frekuensi deteksi.
+            // Kita juga akan menambahkan logika untuk mencegah pemrosesan berulang
             onDetect: (capture) {
+              if (_isProcessing) return; // Mencegah pemrosesan ganda
+
               final List<Barcode> barcodes = capture.barcodes;
               if (barcodes.isNotEmpty) {
                 final String scannedCode = barcodes.first.rawValue ?? '';
+                
                 if (scannedCode.isNotEmpty) {
+                  // Mengunci pemrosesan
+                  setState(() => _isProcessing = true);
+                  
                   // Menghentikan scanner dan mengembalikan hasil
+                  _scannerController.stop(); 
                   Navigator.pop(context, scannedCode);
                 }
               }
@@ -471,9 +527,9 @@ class ScannerOverlay extends StatelessWidget {
             left: 0,
             right: 0,
             child: Text(
-              'Arahkan kamera ke Barcode',
+              'Arahkan kamera ke Barcode (Flash tersedia di pojok kanan atas)',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+              style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
             ),
           ),
         ],
